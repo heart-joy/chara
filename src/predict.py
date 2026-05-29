@@ -20,3 +20,5 @@ def inference_task(detect_image_path: str):
     results = model.predict(source=detect_image_path, conf=0.25, save=True)
 
     return results
+
+results = inference_task(r"C:\Users\86138\Desktop\yolo\datasets\train\images\digit_12.png")
