@@ -1,4 +1,5 @@
 import os
+
 from ultralytics import YOLO
 
 
@@ -9,7 +10,7 @@ def train_custom_model():
     root_dir = os.path.dirname(current_dir)
 
     yaml_path = os.path.join(current_dir, "yolo.yaml")
-    model_path = os.path.join(current_dir, "yolo11n.pt")
+    model_path = os.path.join(current_dir, "yolo26n.pt")
 
     model = YOLO(model_path)
 

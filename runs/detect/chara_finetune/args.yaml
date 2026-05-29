@@ -1,6 +1,6 @@
 task: detect
 mode: train
-model: E:\chara\src\yolo11n.pt
+model: E:\chara\src\yolo26n.pt
 data: E:\chara\src\yolo.yaml
 epochs: 100
 time: null
