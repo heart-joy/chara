@@ -19,3 +19,4 @@ def inference_task(detect_image_path: str):
 
     return results
 
+results = inference_task(r"C:\Users\86138\Desktop\yolo\datasets\train\images\digit_12.png")
