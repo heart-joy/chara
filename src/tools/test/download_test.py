@@ -1,8 +1,3 @@
-# -*- coding: gbk -*-
-"""
-批量下载测试脚本 - GBK 兼容版 (修复中文乱码)
-"""
-
 import os
 import sys
 import io
@@ -12,18 +7,14 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 import random
 import shutil
 
-# ================= 核心修复：处理输出流编码 =================
-# 这一步非常关键：强制将标准输出设置为 UTF-8
-# 这样即使源文件是 GBK，打印出来的中文也能被现代终端正确识别
 try:
     # 重新包装 stdout，指定 encoding='utf-8'
     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
 except Exception:
     pass
-# ============================================================
+
 
 # ================= 配置区域 =================
-# ?? 请在此处填入你的树莓派 IP 地址
 SERVER_URL = "http://192.168.10.223:8000/"
 SAVE_FOLDER_NAME = "stress_test_downloads"
 MAX_WORKERS = 5          # 并发线程数
@@ -46,12 +37,9 @@ def download_file(url, save_path):
         if response.status_code == 200:
             with open(full_path, 'wb') as f:
                 f.write(response.content)
-            # 【修改点1】使用纯文本 [OK] 代替 Emoji，避免字体不支持导致的乱码
-            # 【修改点2】直接打印，依靠顶部的 sys.stdout 设置来保证不乱码
             print(f"[OK] 下载成功: {filename}")
             return True
         else:
-            # 【修改点3】使用纯文本 [ERROR]
             print(f"[ERROR] 状态码错误 ({response.status_code}): {filename}")
             return False
     except requests.exceptions.RequestException as e:
@@ -98,7 +86,6 @@ def test():
                 fail_count += 1
 
     print(f"--------------------------------------------")
-    # 最终统计也使用纯文本
     print(f"[完成] 总计: {len(file_list)}, 成功: {success_count}, 失败: {fail_count}")
     
         
