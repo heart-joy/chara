@@ -8,26 +8,26 @@ import random
 import shutil
 
 try:
-    # ÖØĞÂ°ü×° stdout£¬Ö¸¶¨ encoding='utf-8'
+    # é‡æ–°åŒ…è£… stdoutï¼ŒæŒ‡å®š encoding='utf-8'
     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
 except Exception:
     pass
 
 
-# ================= ÅäÖÃÇøÓò =================
+# ================= é…ç½®åŒºåŸŸ =================
 SERVER_URL = "http://192.168.10.223:8000/"
 SAVE_FOLDER_NAME = "stress_test_downloads"
-MAX_WORKERS = 5          # ²¢·¢Ïß³ÌÊı
-REQUEST_TIMEOUT = 10     # µ¥´ÎÇëÇó³¬Ê±Ê±¼ä(Ãë)
+MAX_WORKERS = 5          # å¹¶å‘çº¿ç¨‹æ•°
+REQUEST_TIMEOUT = 10     # å•æ¬¡è¯·æ±‚è¶…æ—¶æ—¶é—´(ç§’)
 # ============================================
 
 def get_script_dir():
-    """»ñÈ¡µ±Ç°½Å±¾ËùÔÚµÄ¾ø¶ÔÂ·¾¶"""
+    """è·å–å½“å‰è„šæœ¬æ‰€åœ¨çš„ç»å¯¹è·¯å¾„"""
     return os.path.dirname(os.path.abspath(__file__))
 
 def download_file(url, save_path):
     """
-    ÏÂÔØµ¥¸öÎÄ¼şµÄº¯Êı
+    ä¸‹è½½å•ä¸ªæ–‡ä»¶çš„å‡½æ•°
     """
     filename = os.path.basename(url)
     full_path = os.path.join(save_path, filename)
@@ -37,41 +37,41 @@ def download_file(url, save_path):
         if response.status_code == 200:
             with open(full_path, 'wb') as f:
                 f.write(response.content)
-            print(f"[OK] ÏÂÔØ³É¹¦: {filename}")
+            print(f"[OK] ä¸‹è½½æˆåŠŸ: {filename}")
             return True
         else:
-            print(f"[ERROR] ×´Ì¬Âë´íÎó ({response.status_code}): {filename}")
+            print(f"[ERROR] çŠ¶æ€ç é”™è¯¯ ({response.status_code}): {filename}")
             return False
     except requests.exceptions.RequestException as e:
-        print(f"[ERROR] ÇëÇóÊ§°Ü: {filename} -> {e}")
+        print(f"[ERROR] è¯·æ±‚å¤±è´¥: {filename} -> {e}")
         return False
     except Exception as e:
-        print(f"[ERROR] Î´Öª´íÎó: {filename} -> {e}")
+        print(f"[ERROR] æœªçŸ¥é”™è¯¯: {filename} -> {e}")
         return False
 
 def test():
     script_dir = get_script_dir()
     save_dir = os.path.join(script_dir, SAVE_FOLDER_NAME)
 
-    # ´´½¨±£´æÄ¿Â¼
+    # åˆ›å»ºä¿å­˜ç›®å½•
     if not os.path.exists(save_dir):
         os.makedirs(save_dir)
-        print(f"[INFO] ÒÑ´´½¨±£´æÄ¿Â¼: {save_dir}")
+        print(f"[INFO] å·²åˆ›å»ºä¿å­˜ç›®å½•: {save_dir}")
 
-    # Ä£ÄâÉú³ÉÒ»Ğ©²âÊÔÎÄ¼şÃû (Äã¿ÉÒÔÌæ»»ÎªÄãÕæÊµµÄÎÄ¼şÁĞ±í»ñÈ¡Âß¼­)
-    # ÕâÀï¼ÙÉèÄãÒªÏÂÔØ digit_1.png µ½ digit_49.png
+    # æ¨¡æ‹Ÿç”Ÿæˆä¸€äº›æµ‹è¯•æ–‡ä»¶å (ä½ å¯ä»¥æ›¿æ¢ä¸ºä½ çœŸå®çš„æ–‡ä»¶åˆ—è¡¨è·å–é€»è¾‘)
+    # è¿™é‡Œå‡è®¾ä½ è¦ä¸‹è½½ digit_1.png åˆ° digit_49.png
     file_list = [f"digit_{i:02d}.png" for i in range(1,50)]
 
-    print(f"---------------- ¿ªÊ¼ÏÂÔØ²âÊÔ ----------------")
-    print(f"Ä¿±ê·şÎñÆ÷: {SERVER_URL}")
-    print(f"±£´æÎ»ÖÃ:   {save_dir}")
-    print(f"ÎÄ¼ş×ÜÊı:   {len(file_list)}")
+    print(f"---------------- å¼€å§‹ä¸‹è½½æµ‹è¯• ----------------")
+    print(f"ç›®æ ‡æœåŠ¡å™¨: {SERVER_URL}")
+    print(f"ä¿å­˜ä½ç½®:   {save_dir}")
+    print(f"æ–‡ä»¶æ€»æ•°:   {len(file_list)}")
     print(f"--------------------------------------------")
 
     success_count = 0
     fail_count = 0
 
-    # Ê¹ÓÃÏß³Ì³Ø²¢·¢ÏÂÔØ
+    # ä½¿ç”¨çº¿ç¨‹æ± å¹¶å‘ä¸‹è½½
     with ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:
         futures = {}
         for filename in file_list:
@@ -86,7 +86,7 @@ def test():
                 fail_count += 1
 
     print(f"--------------------------------------------")
-    print(f"[Íê³É] ×Ü¼Æ: {len(file_list)}, ³É¹¦: {success_count}, Ê§°Ü: {fail_count}")
+    print(f"[å®Œæˆ] æ€»è®¡: {len(file_list)}, æˆåŠŸ: {success_count}, å¤±è´¥: {fail_count}")
     
         
 
@@ -98,16 +98,16 @@ if __name__ == "__main__":
             if os.path.exists(save_dir):
                 try:
                     shutil.rmtree(save_dir)
-                    print(f"[INFO] ÒÑ³¹µ×ÇåÀíÖ®Ç°µÄÏÂÔØÎÄ¼ş¼Ğ: {save_dir}", flush=True)
+                    print(f"[INFO] å·²å½»åº•æ¸…ç†ä¹‹å‰çš„ä¸‹è½½æ–‡ä»¶å¤¹: {save_dir}", flush=True)
                 except Exception as e:
-                    print(f"[ERROR] ÇåÀíÎÄ¼ş¼ĞÊ§°Ü: {e}", flush=True)
+                    print(f"[ERROR] æ¸…ç†æ–‡ä»¶å¤¹å¤±è´¥: {e}", flush=True)
             test()
             time.sleep(1)
-            # Ëæ»úµÈ´ıÒ»¶ÎÊ±¼ä£¬Ä£ÄâÕæÊµÓÃ»§ĞĞÎª£¬±ÜÃâ¹ı¿ìµÄÇëÇóµ¼ÖÂ·şÎñÆ÷Ñ¹Á¦¹ı´ó  
+            # éšæœºç­‰å¾…ä¸€æ®µæ—¶é—´ï¼Œæ¨¡æ‹ŸçœŸå®ç”¨æˆ·è¡Œä¸ºï¼Œé¿å…è¿‡å¿«çš„è¯·æ±‚å¯¼è‡´æœåŠ¡å™¨å‹åŠ›è¿‡å¤§  
             rand = random.randint(60,120)
-            print(f"[INFO] µÈ´ı {rand} Ãëºó¿ªÊ¼ÏÂÔØ²âÊÔ...", flush=True)
+            print(f"[INFO] ç­‰å¾… {rand} ç§’åå¼€å§‹ä¸‹è½½æµ‹è¯•...", flush=True)
             for i in range(rand * 10):
                 time.sleep(0.1)
     except Exception as e:
-        print(f"[ERROR] ²âÊÔÒì³£ÖÕÖ¹")
+        print(f"[ERROR] æµ‹è¯•å¼‚å¸¸ç»ˆæ­¢")
     

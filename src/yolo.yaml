@@ -1,4 +1,4 @@
 train: ../datasets/train
 val: ../datasets/val
-nc: 2
-names: ["number", "val-taget"]
+nc: 111
+names: ["digit_01","digit_02","digit_03","digit_04","digit_05","digit_06","digit_07","digit_08","digit_09","digit_10","digit_11","digit_12","digit_13","digit_14","digit_15","digit_16","digit_17","digit_18","digit_19","digit_20","digit_21","digit_22","digit_23","digit_24","digit_25","digit_26","digit_27","digit_28","digit_29","digit_30","digit_31","digit_32","digit_33","digit_34","digit_35","digit_36","digit_37","digit_38","digit_39","digit_40","digit_41","digit_42","digit_43","digit_44","digit_45","digit_46","digit_47","digit_48","digit_49","digit_50","digit_51","digit_52","digit_53","digit_54","digit_55","digit_56","digit_57","digit_58","digit_59","digit_60","digit_61","digit_62","digit_63","digit_64","digit_65","digit_66","digit_67","digit_68","digit_69","digit_70","digit_71","digit_72","digit_73","digit_74","digit_75","digit_76","digit_77","digit_78","digit_79","digit_80","digit_81","digit_82","digit_83","digit_84","digit_85","digit_86","digit_87","digit_88","digit_89","digit_90","digit_91","digit_92","digit_93","digit_94","digit_95","digit_96","digit_97","digit_98","digit_99","Rotary-Wing", "Anti-Aircraft-Gun", "Fixed-Wing", "Bomber", "Rocket-Soldier", "Machine-Gunner", "Truck", "Tank", "Transport-Plane", "Fighter-Jet", "Reconnaissance-Plane", "Helicopter"]
