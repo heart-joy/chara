@@ -16,7 +16,7 @@ def train_custom_model():
 
     results = model.train(
         data=yaml_path,
-        epochs=100,
+        epochs=50,
         imgsz=640,
         batch=16,
         device=0,

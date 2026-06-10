@@ -2,62 +2,135 @@
 # #class_id：类别 ID（从 0 开始）
 # center_x, center_y：边界框中心点的归一化坐标（0-1）
 # width, height：边界框的归一化宽度和高度（0-1）
+import cv2
+import numpy as np
 import os
-from PIL import Image
 
-graphic_normalized_size = {
-    "basic_info": {
-        "image_width_px": 640,  # 图片原始宽度（像素）
-        "image_height_px": 640,  # 图片原始高度（像素）
-        "normalization_rule": "归一化值 = 图形实际像素尺寸 / 图片总像素尺寸（宽÷640，高÷640）",
-    },
-    "graphics": [
-        {
-            "序号": 1,
-            "图形内容": "机枪兵",
-            "归一化宽度": 0.5453,
-            "归一化高度": 0.7016,
-            "说明": "旋翼展开占比宽，机身紧凑",
-        },
-        {
-            "序号": 2,
-            "图形内容": "直升机",
-            "归一化宽度": 0.7484,
-            "归一化高度": 0.6234,
-            "说明": "炮管倾斜，整体纵向占比适中",
-        },
-    ],
-}
+class_lib = ["digit_01","digit_02","digit_03","digit_04","digit_05","digit_06","digit_07","digit_08","digit_09","digit_10","digit_11","digit_12","digit_13","digit_14","digit_15","digit_16","digit_17","digit_18","digit_19","digit_20","digit_21","digit_22","digit_23","digit_24","digit_25","digit_26","digit_27","digit_28","digit_29","digit_30","digit_31","digit_32","digit_33","digit_34","digit_35","digit_36","digit_37","digit_38","digit_39","digit_40","digit_41","digit_42","digit_43","digit_44","digit_45","digit_46","digit_47","digit_48","digit_49","digit_50","digit_51","digit_52","digit_53","digit_54","digit_55","digit_56","digit_57","digit_58","digit_59","digit_60","digit_61","digit_62","digit_63","digit_64","digit_65","digit_66","digit_67","digit_68","digit_69","digit_70","digit_71","digit_72","digit_73","digit_74","digit_75","digit_76","digit_77","digit_78","digit_79","digit_80","digit_81","digit_82","digit_83","digit_84","digit_85","digit_86","digit_87","digit_88","digit_89","digit_90","digit_91","digit_92","digit_93","digit_94","digit_95","digit_96","digit_97","digit_98","digit_99","Rotary-Wing", "Anti-Aircraft-Gun", "Fixed-Wing", "Bomber", "Rocket-Soldier", "Machine-Gunner", "Truck", "Tank", "Transport-Plane", "Fighter-Jet", "Reconnaissance-Plane", "Helicopter"]
+
+def get_target_bbox(img_path):
+
+    img = cv2.imread(img_path)
+
+    if img is None:
+        return None
+
+    # 已统一为640×640
+    IMG_SIZE = 640
+
+    hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+
+    # 红色HSV范围
+    lower_red1 = np.array([0, 80, 80])
+    upper_red1 = np.array([15, 255, 255])
+
+    lower_red2 = np.array([160, 80, 80])
+    upper_red2 = np.array([180, 255, 255])
+
+    mask1 = cv2.inRange(hsv, lower_red1, upper_red1)
+    mask2 = cv2.inRange(hsv, lower_red2, upper_red2)
+
+    mask = cv2.bitwise_or(mask1, mask2)
+
+    # 去噪
+    kernel = np.ones((5, 5), np.uint8)
+
+    mask = cv2.morphologyEx(
+        mask,
+        cv2.MORPH_OPEN,
+        kernel
+    )
+
+    mask = cv2.morphologyEx(
+        mask,
+        cv2.MORPH_CLOSE,
+        kernel
+    )
+
+    contours, _ = cv2.findContours(
+        mask,
+        cv2.RETR_EXTERNAL,
+        cv2.CHAIN_APPROX_SIMPLE
+    )
+
+    if len(contours) == 0:
+        return None
+
+    center_x = IMG_SIZE / 2
+    center_y = IMG_SIZE / 2
+
+    best_contour = None
+    best_score = float("inf")
+
+    for cnt in contours:
+
+        area = cv2.contourArea(cnt)
+
+        if area < 100:
+            continue
+
+        x, y, w, h = cv2.boundingRect(cnt)
+
+        cx = x + w / 2
+        cy = y + h / 2
+
+        # 优先选择靠近中心的红色目标
+        dist = np.sqrt(
+            (cx - center_x) ** 2 +
+            (cy - center_y) ** 2
+        )
+
+        if dist < best_score:
+            best_score = dist
+            best_contour = cnt
+
+    if best_contour is None:
+        return None
+
+    x, y, w, h = cv2.boundingRect(best_contour)
+
+    # YOLO格式
+    cx = (x + w / 2) / IMG_SIZE
+    cy = (y + h / 2) / IMG_SIZE
+
+    nw = w / IMG_SIZE
+    nh = h / IMG_SIZE
+
+    return cx, cy, nw, nh
 
 
-def generate_labels(image_dir, label_dir):
-    if not os.path.exists(label_dir):
-        os.makedirs(label_dir)
-    for filename in os.listdir(image_dir):
-        if filename.endswith(".jpg") or filename.endswith(".png"):
-            image_path = os.path.join(image_dir, filename)
-            label_path = os.path.join(label_dir, os.path.splitext(filename)[0] + ".txt")
-            with Image.open(image_path) as img:
-                width, height = img.size
-            # 这里假设所有图片的标签都是 class_id=0，center_x=0.5，center_y=0.5，width=1.0，height=1.0
-            # 你可以根据实际情况修改这些值
-            class_id = 0
-            center_x = 0.5
-            center_y = 0.5
-            bbox_width = 0
-            bbox_height = 0
-            for graphic in graphic_normalized_size["graphics"]:
-                if graphic["图形内容"] in filename:
-                    bbox_width = graphic["归一化宽度"]
-                    bbox_height = graphic["归一化高度"]
-                    break
-            with open(label_path, "w") as f:
-                f.write(
-                    f"{class_id} {center_x} {center_y} {bbox_width} {bbox_height}\n"
-                )
+if __name__ == "__main__":
 
+    image_dir = r"C:\Users\86138\Desktop\yolo\datasets\val\images"
+    label_dir = r"C:\Users\86138\Desktop\yolo\datasets\val\labels"
 
-# # 使用示例
-# image_directory = "C:/Users/86138/Desktop/yolo/picture/train/val-target"
-# label_directory = "C:/Users/86138/Desktop/yolo/labels/val-target"
-# generate_labels(image_directory, label_directory)
+    os.makedirs(label_dir, exist_ok=True)
+
+    for files in os.listdir(image_dir):
+
+        if not files.lower().endswith((".jpg", ".jpeg", ".png")):
+            continue
+
+        img_path = os.path.join(image_dir, files)
+
+        result = get_target_bbox(img_path)
+
+        class_name = files.split("_")[0]
+
+        if class_name not in class_lib:
+            continue
+
+        class_id = class_lib.index(class_name)
+
+        label_path = os.path.join(
+            label_dir,
+            os.path.splitext(files)[0] + ".txt"
+        )
+
+        with open(label_path, "w") as f:
+
+            if result is not None:
+
+                cx, cy, nw, nh = result
+
+                f.write(f"{class_id} {cx:.6f} {cy:.6f} {nw:.6f} {nh:.6f}\n")
