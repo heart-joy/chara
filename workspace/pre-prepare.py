@@ -1,5 +1,6 @@
 import cv2
 import numpy as np
+import os
 
 
 def coarse_detect(img):
@@ -91,16 +92,17 @@ def coarse_detect(img):
     return candidates
 
 if __name__ == "__main__":
-    img = cv2.imread(r"C:\Users\86138\Desktop\yolo\chara\datasets\val\images\Truck_005.jpg")
+    for i in os.listdir(r".\chara\workspace\capture-img"):
+        img = cv2.imread(os.path.join(r".\chara\workspace\capture-img", i))
 
-    boxes = coarse_detect(img)
+        boxes = coarse_detect(img)
 
-    for i, (x1, y1, x2, y2) in enumerate(boxes):
+        for j, (x1, y1, x2, y2) in enumerate(boxes):
 
-        crop = img[y1:y2,
-                x1:x2]
+            crop = img[y1:y2,
+                    x1:x2]
 
-        cv2.imwrite(
-            f"candidate_{i}.jpg",
-            crop
-        )
+            cv2.imwrite(
+                f"./chara/workspace/candidate-img/candidate_{j}.jpg",
+                crop
+            )
